@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FOUND SOLID | OFFICIAL SYSTEM</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.10.1/dist/index.umd.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
@@ -13,21 +13,11 @@
         .header-bar { width:100%; display:flex; justify-content:flex-end; align-items:center; max-width:1200px; padding:20px; box-sizing:border-box; }
         #wallet-ui { display:none; align-items:center; background:white; padding:10px 20px; border-radius:50px; border:3px solid #000; font-weight:900; font-size:12px; box-shadow: 4px 4px 0 #000; }
         .btn-blue { padding:12px 25px; border-radius:50px; border:3px solid #000; background:#2563eb; color:white; font-weight:900; cursor:pointer; text-transform:uppercase; box-shadow:0 4px 0 #1e3a8a; font-size:11px; transition: 0.1s; }
-        .btn-red { background:#ef4444; box-shadow:0 4px 0 #b91c1c; margin-left:10px; }
-        .logo-header { font-family:'Montserrat', sans-serif; font-weight:900; font-size:clamp(22px, 5vw, 34px); text-transform:uppercase; text-align:center; color:white; margin:40px 0; text-shadow:0 1px 0 #000, 0 2px 0 #000, 0 3px 0 #000, 0 4px 0 #000, 0 5px 0 #000, 0 8px 12px rgba(0,0,0,0.5); }
-        #dashboard { display:none; width:100%; max-width:1200px; padding:0 20px; box-sizing:border-box; flex-grow: 1; }
-        .main-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:25px; margin-bottom:40px; }
-        .card { background:white; border-radius:20px; padding:25px; border:4px solid #000; box-shadow:8px 8px 0 #000; position:relative; }
-        .tag { font-size:10px; font-weight:900; background:#000; color:#fff; padding:4px 10px; border-radius:4px; text-transform:uppercase; margin-bottom:15px; display:inline-block; }
-        .val { font-size:28px; font-weight:900; margin:5px 0; display:block; }
+        .logo-header { font-family:'Montserrat', sans-serif; font-weight:900; font-size:30px; text-transform:uppercase; text-align:center; color:white; margin:40px 0; text-shadow:0 4px 0 #000; }
+        #dashboard { display:none; width:100%; max-width:1200px; padding:0 20px; box-sizing:border-box; }
+        .card { background:white; border-radius:20px; padding:25px; border:4px solid #000; box-shadow:8px 8px 0 #000; margin-bottom:20px; }
+        .val { font-size:28px; font-weight:900; display:block; margin-top:5px; }
         .lbl { font-size:11px; font-weight:900; color:#6b7280; text-transform:uppercase; }
-        .sa-panel { grid-column: 1 / -1; background:#fff1f2; border:4px solid #e11d48; border-radius:20px; padding:30px; box-shadow:12px 12px 0 #e11d48; margin-top: 20px; }
-        input { width:100%; padding:14px; font-size:14px; font-weight:900; border:3px solid #000; border-radius:10px; margin:8px 0; box-sizing:border-box; }
-        .wide-btn { width:100%; padding:18px; color:#fff; border:3px solid #000; border-radius:12px; font-weight:900; cursor:pointer; text-transform:uppercase; margin-top:10px; transition: 0.1s; }
-        .bg-green { background:#10b981; box-shadow:5px 5px 0 #065f46; }
-        .bg-blue { background:#2563eb; box-shadow:5px 5px 0 #1e3a8a; }
-        .footer { width:100%; text-align:center; padding:60px 0; margin-top:auto; }
-        .footer-text { font-family:'Montserrat',sans-serif; font-size:14px; font-weight:900; color:#4b5563; letter-spacing:2px; text-transform:uppercase; }
     </style>
 </head>
 <body>
@@ -35,65 +25,41 @@
 <div class="header-bar">
     <div id="wallet-ui">
         <span id="addr-display">0x00...0000</span>
-        <button class="btn-blue btn-red" style="padding:5px 10px; font-size:10px;" onclick="logout()">OFF</button>
     </div>
     <button class="btn-blue" id="connect-btn" onclick="connect()">Connect Wallet</button>
 </div>
 
-<div id="welcome-text" class="logo-header">
-    FOUND SOLID<br>OFFICIAL SYSTEM
-    <div style="font-size:14px; margin-top:20px; color:#4b5563; text-shadow:none; font-family:sans-serif; font-weight:700;">
-        BTC: <span id="t-btc">...</span> | ETH: <span id="t-eth">...</span> | BNB: <span id="t-bnb">...</span>
-    </div>
-</div>
+<div id="welcome-text" class="logo-header">FOUND SOLID<br>SYSTEM</div>
 
 <div id="dashboard">
-    <div class="main-grid">
-        <div class="card">
-            <div class="tag">ИНВЕСТИЦИОННЫЙ ЦЕХ</div>
-            <span class="lbl">Ваш активный вклад</span>
-            <span class="val" id="user-dep">0.00 USDT</span>
-            <input type="number" id="inv-amt" placeholder="Сумма (USDT)">
-            <button class="wide-btn bg-green" onclick="invest()">ОТПРАВИТЬ В ФОНД</button>
-        </div>
-
-        <div class="card">
-            <div class="tag">MARKET LIVE</div>
-            <span class="lbl">Bitcoin (BTC)</span>
-            <span class="val" id="btc-val" style="color:#2563eb;">0.00 USDT</span>
-            <span class="lbl" style="margin-top:10px;">Ethereum (ETH)</span>
-            <span class="val" id="eth-val" style="color:#2563eb;">0.00 USDT</span>
-            <span class="lbl" style="margin-top:10px;">Binance Coin (BNB)</span>
-            <span class="val" id="bnb-val" style="color:#2563eb;">0.00 USDT</span>
-        </div>
-    </div>
-
-    <div id="super-admin-panel" class="sa-panel" style="display:none;">
-        <div class="tag" style="background:#e11d48; margin-bottom:20px;">SUPER ADMIN</div>
-        <input type="number" id="work-amt" placeholder="Сумма USDT">
-        <input type="text" id="work-addr" placeholder="Адрес (0x...)">
-        <button class="wide-btn bg-blue" onclick="sendToWork()">ЗАПУСТИТЬ ПРОКРУТ</button>
+    <div class="card">
+        <span class="lbl">Ваш активный вклад</span>
+        <span id="user-dep" class="val">Загрузка...</span>
+        <button class="btn-blue" style="width:100%; margin-top:20px;" onclick="updateBalance()">ОБНОВИТЬ БАЛАНС</button>
     </div>
 </div>
 
-<div class="footer"><div class="footer-text">FOUND SOLID © 2026.</div></div>
-
 <script>
+    const PROJECT_ID = '39a7f9ab464230bd60ad55ac75881508'; 
     const CONTRACT_ADDR = "0xEe07336fdEC05d9f6B9e603809B34a03C3205760";
-    const OWNER_ADDR = "0x6f4f781f6c0a063c9715af16cff8a0f09187bc1d"; 
-    const ABI = ["function invest(uint256 _amount) external","function userDeposits(address) view returns (uint256)","function sendToWork(address _platform, uint256 _amount) external"];
+    const ABI = ["function userDeposits(address) view returns (uint256)"];
 
     let provider, signer, user;
 
     async function connect() {
         try {
-            // Используем прямой вызов WalletConnect без посредников
-            const walletConnectProvider = new WalletConnectProvider.default({
-                rpc: { 56: "https://bsc-dataseed.binance.org/" }
+            const ethereumProvider = await WalletConnectEthereumProvider.EthereumProvider.init({
+                projectId: PROJECT_ID,
+                showQrModal: true,
+                qrModalOptions: { themeMode: "light" },
+                chains: [56], // BSC
+                methods: ["eth_sendTransaction", "personal_sign"],
+                events: ["chainChanged", "accountsChanged"]
             });
 
-            await walletConnectProvider.enable();
-            provider = new ethers.providers.Web3Provider(walletConnectProvider);
+            await ethereumProvider.connect();
+            
+            provider = new ethers.providers.Web3Provider(ethereumProvider);
             signer = provider.getSigner();
             user = await signer.getAddress();
 
@@ -103,27 +69,11 @@
             document.getElementById("wallet-ui").style.display = "flex";
             document.getElementById("addr-display").innerText = user.slice(0,6) + "..." + user.slice(-4);
 
-            if (user.toLowerCase() === OWNER_ADDR.toLowerCase()) {
-                document.getElementById("super-admin-panel").style.display = "block";
-            }
             updateBalance();
-        } catch (e) { console.error(e); }
-    }
-
-    function logout() { location.reload(); }
-
-    async function updateRates() {
-        try {
-            const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'];
-            for (const s of symbols) {
-                const r = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${s}`);
-                const d = await r.json();
-                const price = parseFloat(d.price);
-                const display = price > 1000 ? Math.round(price).toLocaleString() : price.toFixed(2);
-                document.getElementById(s.toLowerCase().replace('usdt', '-val')).innerText = display + " USDT";
-                document.getElementById('t-' + s.toLowerCase().replace('usdt', '')).innerText = display + " $";
-            }
-        } catch (e) {}
+        } catch (e) {
+            console.error(e);
+            alert("Ошибка: " + e.message);
+        }
     }
 
     async function updateBalance() {
@@ -131,10 +81,11 @@
             const contract = new ethers.Contract(CONTRACT_ADDR, ABI, provider);
             const dep = await contract.userDeposits(user);
             document.getElementById("user-dep").innerText = ethers.utils.formatUnits(dep, 18) + " USDT";
-        } catch (e) {}
+        } catch (e) {
+            console.error(e);
+            document.getElementById("user-dep").innerText = "Ошибка данных";
+        }
     }
-
-    window.onload = () => { updateRates(); setInterval(updateRates, 15000); };
 </script>
 </body>
 </html>
