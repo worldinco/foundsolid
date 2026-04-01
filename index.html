@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FOUND SOLID | OFFICIAL SYSTEM</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
-    <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
@@ -23,14 +22,10 @@
         .val { font-size:28px; font-weight:900; margin:5px 0; display:block; }
         .lbl { font-size:11px; font-weight:900; color:#6b7280; text-transform:uppercase; }
         .sa-panel { grid-column: 1 / -1; background:#fff1f2; border:4px solid #e11d48; border-radius:20px; padding:30px; box-shadow:12px 12px 0 #e11d48; margin-top: 20px; }
-        .sa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         input { width:100%; padding:14px; font-size:14px; font-weight:900; border:3px solid #000; border-radius:10px; margin:8px 0; box-sizing:border-box; }
         .wide-btn { width:100%; padding:18px; color:#fff; border:3px solid #000; border-radius:12px; font-weight:900; cursor:pointer; text-transform:uppercase; margin-top:10px; transition: 0.1s; }
         .bg-green { background:#10b981; box-shadow:5px 5px 0 #065f46; }
         .bg-blue { background:#2563eb; box-shadow:5px 5px 0 #1e3a8a; }
-        .ref-stats { display: flex; gap: 10px; margin-top: 15px; }
-        .ref-unit { flex: 1; background: #fff; border: 2px solid #000; padding: 10px; border-radius: 10px; text-align: center; box-shadow: 3px 3px 0 #000; }
-        .ref-unit b { font-size: 20px; display: block; }
         .footer { width:100%; text-align:center; padding:60px 0; margin-top:auto; }
         .footer-text { font-family:'Montserrat',sans-serif; font-size:14px; font-weight:900; color:#4b5563; letter-spacing:2px; text-transform:uppercase; }
     </style>
@@ -42,11 +37,11 @@
         <span id="addr-display">0x00...0000</span>
         <button class="btn-blue btn-red" style="padding:5px 10px; font-size:10px;" onclick="logout()">OFF</button>
     </div>
-    <button class="btn-blue" id="connect-btn" onclick="onConnect()">Connect Wallet</button>
+    <button class="btn-blue" id="connect-btn" onclick="connect()">Connect Wallet</button>
 </div>
 
 <div id="welcome-text" class="logo-header">
-    ДОБРО ПОЖАЛОВАТЬ В НОВУЮ<br>ЭКОСИСТЕМУ ФИНАНСОВ!
+    FOUND SOLID<br>OFFICIAL SYSTEM
     <div style="font-size:14px; margin-top:20px; color:#4b5563; text-shadow:none; font-family:sans-serif; font-weight:700;">
         BTC: <span id="t-btc">...</span> | ETH: <span id="t-eth">...</span> | BNB: <span id="t-bnb">...</span>
     </div>
@@ -71,101 +66,51 @@
             <span class="lbl" style="margin-top:10px;">Binance Coin (BNB)</span>
             <span class="val" id="bnb-val" style="color:#2563eb;">0.00 USDT</span>
         </div>
-
-        <div class="card">
-            <div class="tag">ПАРТНЕРСКАЯ ПРОГРАММА</div>
-            <span class="lbl">Ваша ссылка</span>
-            <div id="ref-link" style="font-size:11px; font-weight:900; margin:12px 0; word-break: break-all; border: 2px solid #eee; padding: 5px;">...</div>
-            <button class="wide-btn" style="background:#000; font-size:10px;" onclick="copyRef()">КОПИРОВАТЬ</button>
-            <div class="ref-stats">
-                <div class="ref-unit"><span class="lbl">L1</span><br><b id="l1-val">0</b></div>
-                <div class="ref-unit"><span class="lbl">L2</span><br><b id="l2-val">0</b></div>
-                <div class="ref-unit"><span class="lbl">L3</span><br><b id="l3-val">0</b></div>
-            </div>
-        </div>
     </div>
 
     <div id="super-admin-panel" class="sa-panel" style="display:none;">
-        <div class="tag" style="background:#e11d48; margin-bottom:20px;">COMMAND TOWER: SUPER ADMIN</div>
-        <div class="sa-grid">
-            <div class="card">
-                <span class="lbl">Глобальная ставка (%)</span>
-                <input type="number" id="new-rate" placeholder="Напр: 8.5">
-                <button class="wide-btn bg-blue">ОБНОВИТЬ СИСТЕМУ</button>
-            </div>
-            <div class="card">
-                <span class="lbl">Вывод в работу (Смарт-контракт)</span>
-                <input type="number" id="work-amt" placeholder="Сумма USDT">
-                <input type="text" id="work-addr" placeholder="Адрес (0x...)">
-                <button class="wide-btn bg-blue" onclick="sendToWork()">ЗАПУСТИТЬ ПРОКРУТ</button>
-            </div>
-        </div>
+        <div class="tag" style="background:#e11d48; margin-bottom:20px;">SUPER ADMIN</div>
+        <input type="number" id="work-amt" placeholder="Сумма USDT">
+        <input type="text" id="work-addr" placeholder="Адрес (0x...)">
+        <button class="wide-btn bg-blue" onclick="sendToWork()">ЗАПУСТИТЬ ПРОКРУТ</button>
     </div>
 </div>
 
-<div class="footer"><div class="footer-text">FOUND SOLID © 2026. ONLINE SYSTEM.</div></div>
+<div class="footer"><div class="footer-text">FOUND SOLID © 2026.</div></div>
 
 <script>
     const CONTRACT_ADDR = "0xEe07336fdEC05d9f6B9e603809B34a03C3205760";
     const OWNER_ADDR = "0x6f4f781f6c0a063c9715af16cff8a0f09187bc1d"; 
-    const USDT_ADDR = "0x55d398326f99059fF775485246999027B3197955";
     const ABI = ["function invest(uint256 _amount) external","function userDeposits(address) view returns (uint256)","function sendToWork(address _platform, uint256 _amount) external"];
 
-    let provider, signer, user, web3Modal;
+    let provider, signer, user;
 
-    // Инициализация Web3Modal
-    function initApp() {
-        const providerOptions = {
-            walletconnect: {
-                package: window.WalletConnectProvider.default,
-                options: {
-                    rpc: { 56: "https://rpc.ankr.com/bsc" },
-                    network: "binance"
-                }
-            }
-        };
-        web3Modal = new window.Web3Modal.default({
-            cacheProvider: true,
-            providerOptions,
-            theme: "dark"
-        });
-        updateRates();
-        setInterval(updateRates, 15000);
-        if (localStorage.getItem('walletConnected') === 'true') {
-            onConnect();
-        }
-    }
-
-    async function onConnect() {
+    async function connect() {
         try {
-            const instance = await web3Modal.connect();
-            provider = new ethers.providers.Web3Provider(instance);
+            // Используем прямой вызов WalletConnect без посредников
+            const walletConnectProvider = new WalletConnectProvider.default({
+                rpc: { 56: "https://bsc-dataseed.binance.org/" }
+            });
+
+            await walletConnectProvider.enable();
+            provider = new ethers.providers.Web3Provider(walletConnectProvider);
             signer = provider.getSigner();
             user = await signer.getAddress();
 
-            localStorage.setItem('walletConnected', 'true');
-            uiConnected();
+            document.getElementById("welcome-text").style.display = "none";
+            document.getElementById("dashboard").style.display = "block";
+            document.getElementById("connect-btn").style.display = "none";
+            document.getElementById("wallet-ui").style.display = "flex";
+            document.getElementById("addr-display").innerText = user.slice(0,6) + "..." + user.slice(-4);
+
+            if (user.toLowerCase() === OWNER_ADDR.toLowerCase()) {
+                document.getElementById("super-admin-panel").style.display = "block";
+            }
+            updateBalance();
         } catch (e) { console.error(e); }
     }
 
-    function uiConnected() {
-        document.getElementById("welcome-text").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        document.getElementById("connect-btn").style.display = "none";
-        document.getElementById("wallet-ui").style.display = "flex";
-        document.getElementById("addr-display").innerText = user.slice(0,6) + "..." + user.slice(-4);
-        document.getElementById("ref-link").innerText = window.location.origin + "?ref=" + user.slice(0,8);
-
-        if (user.toLowerCase() === OWNER_ADDR.toLowerCase()) {
-            document.getElementById("super-admin-panel").style.display = "block";
-        }
-        updateBalance();
-    }
-
-    function logout() {
-        localStorage.removeItem('walletConnected');
-        location.reload();
-    }
+    function logout() { location.reload(); }
 
     async function updateRates() {
         try {
@@ -175,10 +120,8 @@
                 const d = await r.json();
                 const price = parseFloat(d.price);
                 const display = price > 1000 ? Math.round(price).toLocaleString() : price.toFixed(2);
-                const el = document.getElementById(s.toLowerCase().replace('usdt', '-val'));
-                if(el) el.innerText = display + " USDT";
-                const tEl = document.getElementById('t-' + s.toLowerCase().replace('usdt', ''));
-                if(tEl) tEl.innerText = display + " $";
+                document.getElementById(s.toLowerCase().replace('usdt', '-val')).innerText = display + " USDT";
+                document.getElementById('t-' + s.toLowerCase().replace('usdt', '')).innerText = display + " $";
             }
         } catch (e) {}
     }
@@ -191,38 +134,7 @@
         } catch (e) {}
     }
 
-    async function invest() {
-        const val = document.getElementById("inv-amt").value;
-        if (!val || val <= 0) return alert("Введите сумму");
-        try {
-            const amt = ethers.utils.parseUnits(val, 18);
-            const usdt = new ethers.Contract(USDT_ADDR, ["function approve(address,uint256) returns (bool)"], signer);
-            const appTx = await usdt.approve(CONTRACT_ADDR, amt);
-            await appTx.wait();
-            const fund = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
-            const tx = await fund.invest(amt);
-            await tx.wait();
-            updateBalance();
-        } catch (e) { alert("Ошибка"); }
-    }
-
-    async function sendToWork() {
-        const amtVal = document.getElementById("work-amt").value;
-        const addr = document.getElementById("work-addr").value;
-        try {
-            const fund = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
-            const tx = await fund.sendToWork(addr, ethers.utils.parseUnits(amtVal, 18));
-            await tx.wait();
-            alert("Успешно!");
-        } catch (e) { alert("Ошибка СА"); }
-    }
-
-    function copyRef() {
-        navigator.clipboard.writeText(document.getElementById("ref-link").innerText);
-        alert("Скопировано!");
-    }
-
-    window.addEventListener('load', initApp);
+    window.onload = () => { updateRates(); setInterval(updateRates, 15000); };
 </script>
 </body>
 </html>
