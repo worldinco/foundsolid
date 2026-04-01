@@ -4,53 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FOUND SOLID | OFFICIAL SYSTEM</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
+    <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
-        
         body { background:#d1d5db; min-height:100vh; margin:0; display:flex; flex-direction:column; align-items:center; font-family: sans-serif; color:#000; }
-
-        /* ШАПКА ПО ОБРАЗЦУ К1 */
         .header-bar { width:100%; display:flex; justify-content:flex-end; align-items:center; max-width:1200px; padding:20px; box-sizing:border-box; }
         #wallet-ui { display:none; align-items:center; background:white; padding:10px 20px; border-radius:50px; border:3px solid #000; font-weight:900; font-size:12px; box-shadow: 4px 4px 0 #000; }
         .btn-blue { padding:12px 25px; border-radius:50px; border:3px solid #000; background:#2563eb; color:white; font-weight:900; cursor:pointer; text-transform:uppercase; box-shadow:0 4px 0 #1e3a8a; font-size:11px; transition: 0.1s; }
         .btn-red { background:#ef4444; box-shadow:0 4px 0 #b91c1c; margin-left:10px; }
-
-        /* ПРИВЕТСТВИЕ */
-        .logo-header { 
-            font-family:'Montserrat', sans-serif; font-weight:900; font-size:clamp(22px, 5vw, 34px); text-transform:uppercase; text-align:center; color:white; margin:40px 0; 
-            text-shadow:0 1px 0 #000, 0 2px 0 #000, 0 3px 0 #000, 0 4px 0 #000, 0 5px 0 #000, 0 8px 12px rgba(0,0,0,0.5); 
-        }
-
-        /* ОСНОВНОЙ КАБИНЕТ */
+        .logo-header { font-family:'Montserrat', sans-serif; font-weight:900; font-size:clamp(22px, 5vw, 34px); text-transform:uppercase; text-align:center; color:white; margin:40px 0; text-shadow:0 1px 0 #000, 0 2px 0 #000, 0 3px 0 #000, 0 4px 0 #000, 0 5px 0 #000, 0 8px 12px rgba(0,0,0,0.5); }
         #dashboard { display:none; width:100%; max-width:1200px; padding:0 20px; box-sizing:border-box; flex-grow: 1; }
         .main-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:25px; margin-bottom:40px; }
-        
         .card { background:white; border-radius:20px; padding:25px; border:4px solid #000; box-shadow:8px 8px 0 #000; position:relative; }
         .tag { font-size:10px; font-weight:900; background:#000; color:#fff; padding:4px 10px; border-radius:4px; text-transform:uppercase; margin-bottom:15px; display:inline-block; }
-        
         .val { font-size:28px; font-weight:900; margin:5px 0; display:block; }
         .lbl { font-size:11px; font-weight:900; color:#6b7280; text-transform:uppercase; }
-
-        /* КАЛЬКУЛЯТОР */
-        input[type="range"] { width: 100%; margin: 15px 0; accent-color: #2563eb; cursor: pointer; }
-        .calc-box { background: #f1f5f9; padding: 15px; border-radius: 12px; border: 2px dashed #000; margin-top: 10px; text-align: center; }
-
-        /* РЕФЕРАЛЬНАЯ СИСТЕМА (3 УРОВНЯ) */
-        .ref-stats { display: flex; gap: 10px; margin-top: 15px; }
-        .ref-unit { flex: 1; background: #fff; border: 2px solid #000; padding: 10px; border-radius: 10px; text-align: center; box-shadow: 3px 3px 0 #000; }
-        .ref-unit b { font-size: 20px; display: block; }
-
-        /* ПАНЕЛЬ СА (СУПЕР АДМИН) */
         .sa-panel { grid-column: 1 / -1; background:#fff1f2; border:4px solid #e11d48; border-radius:20px; padding:30px; box-shadow:12px 12px 0 #e11d48; margin-top: 20px; }
         .sa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-
         input { width:100%; padding:14px; font-size:14px; font-weight:900; border:3px solid #000; border-radius:10px; margin:8px 0; box-sizing:border-box; }
         .wide-btn { width:100%; padding:18px; color:#fff; border:3px solid #000; border-radius:12px; font-weight:900; cursor:pointer; text-transform:uppercase; margin-top:10px; transition: 0.1s; }
         .bg-green { background:#10b981; box-shadow:5px 5px 0 #065f46; }
         .bg-blue { background:#2563eb; box-shadow:5px 5px 0 #1e3a8a; }
-        .wide-btn:active { transform: translate(2px, 2px); box-shadow: none; }
-
-        /* НИЖНИЙ РЯД (ФУТЕР) */
+        .ref-stats { display: flex; gap: 10px; margin-top: 15px; }
+        .ref-unit { flex: 1; background: #fff; border: 2px solid #000; padding: 10px; border-radius: 10px; text-align: center; box-shadow: 3px 3px 0 #000; }
+        .ref-unit b { font-size: 20px; display: block; }
         .footer { width:100%; text-align:center; padding:60px 0; margin-top:auto; }
         .footer-text { font-family:'Montserrat',sans-serif; font-size:14px; font-weight:900; color:#4b5563; letter-spacing:2px; text-transform:uppercase; }
     </style>
@@ -60,13 +40,16 @@
 <div class="header-bar">
     <div id="wallet-ui">
         <span id="addr-display">0x00...0000</span>
-        <button class="btn-blue btn-red" style="padding:5px 10px; font-size:10px;" onclick="location.reload()">OFF</button>
+        <button class="btn-blue btn-red" style="padding:5px 10px; font-size:10px;" onclick="logout()">OFF</button>
     </div>
-    <button class="btn-blue" id="connect-btn" onclick="init()">Connect Wallet</button>
+    <button class="btn-blue" id="connect-btn" onclick="onConnect()">Connect Wallet</button>
 </div>
 
 <div id="welcome-text" class="logo-header">
     ДОБРО ПОЖАЛОВАТЬ В НОВУЮ<br>ЭКОСИСТЕМУ ФИНАНСОВ!
+    <div style="font-size:14px; margin-top:20px; color:#4b5563; text-shadow:none; font-family:sans-serif; font-weight:700;">
+        BTC: <span id="t-btc">...</span> | ETH: <span id="t-eth">...</span> | BNB: <span id="t-bnb">...</span>
+    </div>
 </div>
 
 <div id="dashboard">
@@ -75,18 +58,18 @@
             <div class="tag">ИНВЕСТИЦИОННЫЙ ЦЕХ</div>
             <span class="lbl">Ваш активный вклад</span>
             <span class="val" id="user-dep">0.00 USDT</span>
-            <input type="number" id="inv-amt" placeholder="Сумма (USDT)" oninput="calcProfit()">
+            <input type="number" id="inv-amt" placeholder="Сумма (USDT)">
             <button class="wide-btn bg-green" onclick="invest()">ОТПРАВИТЬ В ФОНД</button>
         </div>
 
         <div class="card">
-            <div class="tag">КАЛЬКУЛЯТОР ПРИБЫЛИ</div>
-            <span class="lbl">Ставка доходности: <b id="rate-ui">5</b>%</span>
-            <input type="range" id="rate-slider" min="1" max="15" value="5" oninput="calcProfit()">
-            <div class="calc-box">
-                <span class="lbl">Прогноз дохода (30 дней):</span>
-                <span class="val" id="profit-ui" style="color:#10b981;">0.00 USDT</span>
-            </div>
+            <div class="tag">MARKET LIVE</div>
+            <span class="lbl">Bitcoin (BTC)</span>
+            <span class="val" id="btc-val" style="color:#2563eb;">0.00 USDT</span>
+            <span class="lbl" style="margin-top:10px;">Ethereum (ETH)</span>
+            <span class="val" id="eth-val" style="color:#2563eb;">0.00 USDT</span>
+            <span class="lbl" style="margin-top:10px;">Binance Coin (BNB)</span>
+            <span class="val" id="bnb-val" style="color:#2563eb;">0.00 USDT</span>
         </div>
 
         <div class="card">
@@ -108,7 +91,7 @@
             <div class="card">
                 <span class="lbl">Глобальная ставка (%)</span>
                 <input type="number" id="new-rate" placeholder="Напр: 8.5">
-                <button class="wide-btn bg-blue" onclick="alert('Ставка обновлена!')">ОБНОВИТЬ СИСТЕМУ</button>
+                <button class="wide-btn bg-blue">ОБНОВИТЬ СИСТЕМУ</button>
             </div>
             <div class="card">
                 <span class="lbl">Вывод в работу (Смарт-контракт)</span>
@@ -120,85 +103,117 @@
     </div>
 </div>
 
-<div class="footer">
-    <div class="footer-text">FOUND SOLID © 2026. ONLINE SYSTEM.</div>
-</div>
+<div class="footer"><div class="footer-text">FOUND SOLID © 2026. ONLINE SYSTEM.</div></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <script>
     const CONTRACT_ADDR = "0xEe07336fdEC05d9f6B9e603809B34a03C3205760";
     const OWNER_ADDR = "0x6f4f781f6c0a063c9715af16cff8a0f09187bc1d"; 
     const USDT_ADDR = "0x55d398326f99059fF775485246999027B3197955";
+    const ABI = ["function invest(uint256 _amount) external","function userDeposits(address) view returns (uint256)","function sendToWork(address _platform, uint256 _amount) external"];
 
-    const ABI = [
-        "function invest(uint256 _amount) external",
-        "function userDeposits(address) view returns (uint256)",
-        "function sendToWork(address _platform, uint256 _amount) external"
-    ];
+    let provider, signer, user, web3Modal;
 
-    let provider, signer, user;
+    // Инициализация Web3Modal
+    function initApp() {
+        const providerOptions = {
+            walletconnect: {
+                package: window.WalletConnectProvider.default,
+                options: {
+                    rpc: { 56: "https://rpc.ankr.com/bsc" },
+                    network: "binance"
+                }
+            }
+        };
+        web3Modal = new window.Web3Modal.default({
+            cacheProvider: true,
+            providerOptions,
+            theme: "dark"
+        });
+        updateRates();
+        setInterval(updateRates, 15000);
+        if (localStorage.getItem('walletConnected') === 'true') {
+            onConnect();
+        }
+    }
 
-    async function init() {
-        if (!window.ethereum) return alert("Rabby Wallet не найден!");
+    async function onConnect() {
         try {
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send("eth_requestAccounts", []);
+            const instance = await web3Modal.connect();
+            provider = new ethers.providers.Web3Provider(instance);
             signer = provider.getSigner();
             user = await signer.getAddress();
 
-            document.getElementById("welcome-text").style.display = "none";
-            document.getElementById("dashboard").style.display = "block";
-            document.getElementById("connect-btn").style.display = "none";
-            document.getElementById("wallet-ui").style.display = "flex";
-            document.getElementById("addr-display").innerText = user.slice(0,6) + "..." + user.slice(-4);
-            document.getElementById("ref-link").innerText = window.location.origin + "?ref=" + user.slice(0,8);
-
-            if (user.toLowerCase() === OWNER_ADDR.toLowerCase()) {
-                document.getElementById("super-admin-panel").style.display = "block";
-            }
-            updateBalance();
+            localStorage.setItem('walletConnected', 'true');
+            uiConnected();
         } catch (e) { console.error(e); }
     }
 
-    async function updateBalance() {
-        const contract = new ethers.Contract(CONTRACT_ADDR, ABI, provider);
-        const dep = await contract.userDeposits(user);
-        document.getElementById("user-dep").innerText = ethers.utils.formatUnits(dep, 18) + " USDT";
+    function uiConnected() {
+        document.getElementById("welcome-text").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        document.getElementById("connect-btn").style.display = "none";
+        document.getElementById("wallet-ui").style.display = "flex";
+        document.getElementById("addr-display").innerText = user.slice(0,6) + "..." + user.slice(-4);
+        document.getElementById("ref-link").innerText = window.location.origin + "?ref=" + user.slice(0,8);
+
+        if (user.toLowerCase() === OWNER_ADDR.toLowerCase()) {
+            document.getElementById("super-admin-panel").style.display = "block";
+        }
+        updateBalance();
     }
 
-    function calcProfit() {
-        const amt = document.getElementById("inv-amt").value || 0;
-        const rate = document.getElementById("rate-slider").value;
-        document.getElementById("rate-ui").innerText = rate;
-        document.getElementById("profit-ui").innerText = ((amt * rate) / 100).toFixed(2) + " USDT";
+    function logout() {
+        localStorage.removeItem('walletConnected');
+        location.reload();
+    }
+
+    async function updateRates() {
+        try {
+            const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'];
+            for (const s of symbols) {
+                const r = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${s}`);
+                const d = await r.json();
+                const price = parseFloat(d.price);
+                const display = price > 1000 ? Math.round(price).toLocaleString() : price.toFixed(2);
+                const el = document.getElementById(s.toLowerCase().replace('usdt', '-val'));
+                if(el) el.innerText = display + " USDT";
+                const tEl = document.getElementById('t-' + s.toLowerCase().replace('usdt', ''));
+                if(tEl) tEl.innerText = display + " $";
+            }
+        } catch (e) {}
+    }
+
+    async function updateBalance() {
+        try {
+            const contract = new ethers.Contract(CONTRACT_ADDR, ABI, provider);
+            const dep = await contract.userDeposits(user);
+            document.getElementById("user-dep").innerText = ethers.utils.formatUnits(dep, 18) + " USDT";
+        } catch (e) {}
     }
 
     async function invest() {
         const val = document.getElementById("inv-amt").value;
         if (!val || val <= 0) return alert("Введите сумму");
-        const amt = ethers.utils.parseUnits(val, 18);
         try {
-            // 1. Approve
+            const amt = ethers.utils.parseUnits(val, 18);
             const usdt = new ethers.Contract(USDT_ADDR, ["function approve(address,uint256) returns (bool)"], signer);
             const appTx = await usdt.approve(CONTRACT_ADDR, amt);
             await appTx.wait();
-            // 2. Invest
             const fund = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
             const tx = await fund.invest(amt);
             await tx.wait();
-            alert("Транзакция успешна!");
             updateBalance();
-        } catch (e) { alert("Ошибка блокчейна"); }
+        } catch (e) { alert("Ошибка"); }
     }
 
     async function sendToWork() {
-        const amt = ethers.utils.parseUnits(document.getElementById("work-amt").value, 18);
+        const amtVal = document.getElementById("work-amt").value;
         const addr = document.getElementById("work-addr").value;
         try {
             const fund = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
-            const tx = await fund.sendToWork(addr, amt);
+            const tx = await fund.sendToWork(addr, ethers.utils.parseUnits(amtVal, 18));
             await tx.wait();
-            alert("Средства отправлены в работу!");
+            alert("Успешно!");
         } catch (e) { alert("Ошибка СА"); }
     }
 
@@ -206,6 +221,8 @@
         navigator.clipboard.writeText(document.getElementById("ref-link").innerText);
         alert("Скопировано!");
     }
+
+    window.addEventListener('load', initApp);
 </script>
 </body>
 </html>
