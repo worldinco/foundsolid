@@ -47,12 +47,19 @@
     let provider, signer, user;
 
     async function connect() {
+        // Проверка: загрузилась ли библиотека?
+        const WCProvider = window.WalletConnectEthereumProvider;
+        if (!WCProvider) {
+            alert("Библиотека ещё грузится, подождите пару секунд и нажмите снова.");
+            return;
+        }
+
         try {
-            const ethereumProvider = await WalletConnectEthereumProvider.EthereumProvider.init({
+            const ethereumProvider = await WCProvider.EthereumProvider.init({
                 projectId: PROJECT_ID,
                 showQrModal: true,
                 qrModalOptions: { themeMode: "light" },
-                chains: [56], // BSC
+                chains: [56], 
                 methods: ["eth_sendTransaction", "personal_sign"],
                 events: ["chainChanged", "accountsChanged"]
             });
@@ -72,7 +79,7 @@
             updateBalance();
         } catch (e) {
             console.error(e);
-            alert("Ошибка: " + e.message);
+            alert("Ошибка подключения: " + e.message);
         }
     }
 
