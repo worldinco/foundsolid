@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FOUND SOLID | OFFICIAL SYSTEM</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.10.1/dist/index.umd.min.js"></script>
+    <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.10.1/dist/index.umd.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
@@ -17,7 +17,6 @@
         #dashboard { display:none; width:100%; max-width:1200px; padding:0 20px; box-sizing:border-box; }
         .card { background:white; border-radius:20px; padding:25px; border:4px solid #000; box-shadow:8px 8px 0 #000; margin-bottom:20px; }
         .val { font-size:28px; font-weight:900; display:block; margin-top:5px; }
-        .lbl { font-size:11px; font-weight:900; color:#6b7280; text-transform:uppercase; }
     </style>
 </head>
 <body>
@@ -33,7 +32,6 @@
 
 <div id="dashboard">
     <div class="card">
-        <span class="lbl">Ваш активный вклад</span>
         <span id="user-dep" class="val">Загрузка...</span>
         <button class="btn-blue" style="width:100%; margin-top:20px;" onclick="updateBalance()">ОБНОВИТЬ БАЛАНС</button>
     </div>
@@ -47,18 +45,11 @@
     let provider, signer, user;
 
     async function connect() {
-        // Проверка: загрузилась ли библиотека?
-        const WCProvider = window.WalletConnectEthereumProvider;
-        if (!WCProvider) {
-            alert("Библиотека ещё грузится, подождите пару секунд и нажмите снова.");
-            return;
-        }
-
+        // Убрали проверку с текстом, теперь код просто пытается инициализироваться сразу
         try {
-            const ethereumProvider = await WCProvider.EthereumProvider.init({
+            const ethereumProvider = await window.WalletConnectEthereumProvider.EthereumProvider.init({
                 projectId: PROJECT_ID,
                 showQrModal: true,
-                qrModalOptions: { themeMode: "light" },
                 chains: [56], 
                 methods: ["eth_sendTransaction", "personal_sign"],
                 events: ["chainChanged", "accountsChanged"]
@@ -78,8 +69,7 @@
 
             updateBalance();
         } catch (e) {
-            console.error(e);
-            alert("Ошибка подключения: " + e.message);
+            alert("Ошибка: " + e.message);
         }
     }
 
@@ -89,8 +79,7 @@
             const dep = await contract.userDeposits(user);
             document.getElementById("user-dep").innerText = ethers.utils.formatUnits(dep, 18) + " USDT";
         } catch (e) {
-            console.error(e);
-            document.getElementById("user-dep").innerText = "Ошибка данных";
+            document.getElementById("user-dep").innerText = "Ошибка баланса";
         }
     }
 </script>
