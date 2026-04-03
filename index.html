@@ -4,27 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FOUND SOLID | OFFICIAL SYSTEM</title>
-    <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
     <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.10.1/dist/index.umd.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
         body { background:#d1d5db; min-height:100vh; margin:0; display:flex; flex-direction:column; align-items:center; font-family: sans-serif; color:#000; }
-        .header-bar { width:100%; display:flex; justify-content:flex-end; align-items:center; max-width:1200px; padding:20px; box-sizing:border-box; }
-        #wallet-ui { display:none; align-items:center; background:white; padding:10px 20px; border-radius:50px; border:3px solid #000; font-weight:900; font-size:12px; box-shadow: 4px 4px 0 #000; }
-        .btn-blue { padding:12px 25px; border-radius:50px; border:3px solid #000; background:#2563eb; color:white; font-weight:900; cursor:pointer; text-transform:uppercase; box-shadow:0 4px 0 #1e3a8a; font-size:11px; transition: 0.1s; }
+        .header-bar { width:100%; display:flex; justify-content:flex-end; padding:20px; box-sizing:border-box; }
+        .btn-blue { padding:12px 25px; border-radius:50px; border:3px solid #000; background:#2563eb; color:white; font-weight:900; cursor:pointer; text-transform:uppercase; box-shadow:0 4px 0 #1e3a8a; transition: 0.1s; }
         .logo-header { font-family:'Montserrat', sans-serif; font-weight:900; font-size:30px; text-transform:uppercase; text-align:center; color:white; margin:40px 0; text-shadow:0 4px 0 #000; }
-        #dashboard { display:none; width:100%; max-width:1200px; padding:0 20px; box-sizing:border-box; }
-        .card { background:white; border-radius:20px; padding:25px; border:4px solid #000; box-shadow:8px 8px 0 #000; margin-bottom:20px; }
-        .val { font-size:28px; font-weight:900; display:block; margin-top:5px; }
+        #dashboard { display:none; width:100%; max-width:600px; padding:0 20px; box-sizing:border-box; }
+        .card { background:white; border-radius:20px; padding:25px; border:4px solid #000; box-shadow:8px 8px 0 #000; text-align:center; }
+        .val { font-size:28px; font-weight:900; display:block; margin:15px 0; }
     </style>
 </head>
 <body>
 
 <div class="header-bar">
-    <div id="wallet-ui">
-        <span id="addr-display">0x00...0000</span>
-    </div>
     <button class="btn-blue" id="connect-btn" onclick="connect()">Connect Wallet</button>
 </div>
 
@@ -32,8 +28,9 @@
 
 <div id="dashboard">
     <div class="card">
-        <span id="user-dep" class="val">Загрузка...</span>
-        <button class="btn-blue" style="width:100%; margin-top:20px;" onclick="updateBalance()">ОБНОВИТЬ БАЛАНС</button>
+        <span style="font-size:12px; font-weight:bold; color:gray;">ВАШ ДЕПОЗИТ:</span>
+        <span id="user-dep" class="val">0.00 USDT</span>
+        <button class="btn-blue" style="width:100%;" onclick="updateBalance()">ОБНОВИТЬ</button>
     </div>
 </div>
 
@@ -44,15 +41,33 @@
 
     let provider, signer, user;
 
+    // Функция ожидания загрузки библиотеки
+    const waitForLib = () => {
+        return new Promise(resolve => {
+            const check = setInterval(() => {
+                if (window.WalletConnectEthereumProvider) {
+                    clearInterval(check);
+                    resolve();
+                }
+            }, 100);
+        });
+    };
+
     async function connect() {
-        // Убрали проверку с текстом, теперь код просто пытается инициализироваться сразу
+        const btn = document.getElementById("connect-btn");
+        btn.innerText = "ЗАГРУЗКА...";
+        
         try {
+            // Ждем, пока библиотека появится в памяти
+            await waitForLib();
+
             const ethereumProvider = await window.WalletConnectEthereumProvider.EthereumProvider.init({
                 projectId: PROJECT_ID,
                 showQrModal: true,
-                chains: [56], 
+                chains: [56],
                 methods: ["eth_sendTransaction", "personal_sign"],
-                events: ["chainChanged", "accountsChanged"]
+                events: ["chainChanged", "accountsChanged"],
+                rpcMap: { 56: "https://bsc-dataseed.binance.org/" }
             });
 
             await ethereumProvider.connect();
@@ -63,12 +78,12 @@
 
             document.getElementById("welcome-text").style.display = "none";
             document.getElementById("dashboard").style.display = "block";
-            document.getElementById("connect-btn").style.display = "none";
-            document.getElementById("wallet-ui").style.display = "flex";
-            document.getElementById("addr-display").innerText = user.slice(0,6) + "..." + user.slice(-4);
+            btn.style.display = "none";
 
             updateBalance();
         } catch (e) {
+            console.error(e);
+            btn.innerText = "CONNECT WALLET";
             alert("Ошибка: " + e.message);
         }
     }
@@ -79,7 +94,7 @@
             const dep = await contract.userDeposits(user);
             document.getElementById("user-dep").innerText = ethers.utils.formatUnits(dep, 18) + " USDT";
         } catch (e) {
-            document.getElementById("user-dep").innerText = "Ошибка баланса";
+            document.getElementById("user-dep").innerText = "Ошибка сети";
         }
     }
 </script>
